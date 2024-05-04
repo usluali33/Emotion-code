@@ -1,0 +1,32 @@
+import cv2
+import numpy as np
+from sklearn.svm import SVC
+
+# Yüz algılayıcıyı yükle
+face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
+# Duygu sınıflandırıcı modelini yükle
+model = SVC()
+
+# Veri setini yükle
+data = np.load('duygu_veriseti.npy')
+
+# Verileri ve etiketleri ayır
+X = data[:, :-1]  # Duygusal özellikler
+y = data[:, -1]  # Duygusal etiketler
+
+# Modeli eğit
+model.fit(X, y)
+
+# Yeni bir görüntüden duygu tahmini
+image = cv2.imread('yeni_resim.jpg')
+
+# Yüzleri algıla
+faces = face_detector.detectMultiScale(image, 1.1, 4)
+
+# Her yüz için duygu tahmini yap
+for (x, y, w, h) in faces:
+  roi = image[y:y+h, x:x+w]  # Yüz bölgesini (ROI) çıkar
+  features = ...  # ROI'den duygusal özellikleri çıkarın
+  prediction = model.predict(features.reshape(1, -1))  # Duygusal etiketi tahmin edin
+  print(f"Duygu: {prediction[0]}")
